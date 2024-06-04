@@ -1,0 +1,119 @@
+-- Tabela User
+CREATE TABLE User (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(255) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
+    password NVARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1
+);
+
+-- Tabela TeaType
+CREATE TABLE TeaType (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL,
+    description NVARCHAR(MAX) NOT NULL,
+    temp INT NOT NULL,
+    brewing_time INT NOT NULL,
+    amount_per_cup NVARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1
+);
+
+-- Tabela Company
+CREATE TABLE Company (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL,
+    email NVARCHAR(255) NOT NULL,
+    phone_number NVARCHAR(50) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1
+);
+
+-- Tabela Tea
+CREATE TABLE Tea (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL,
+    tea_type_id INT NOT NULL,
+    company_id INT NOT NULL,
+    country_origin NVARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    size INT NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1,
+    FOREIGN KEY (tea_type_id) REFERENCES TeaType(id),
+    FOREIGN KEY (company_id) REFERENCES Company(id)
+);
+
+-- Tabela PromotionCodeTeaType
+CREATE TABLE PromotionCodeType (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tea_type_id INT NOT NULL,
+    company_id INT NOT NULL,
+    promo_code NVARCHAR(255) NOT NULL,
+    promo_amount INT NOT NULL,
+    promo_start DATETIME NOT NULL,
+    promo_end DATETIME NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1,
+    FOREIGN KEY (tea_type_id) REFERENCES TeaType(id),
+    FOREIGN KEY (company_id) REFERENCES Company(id)
+);
+
+-- Tabela PromotionCodeTea
+CREATE TABLE PromotionCodeTea (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    tea_id INT NOT NULL,
+    company_id INT NOT NULL,
+    promo_code NVARCHAR(255) NOT NULL,
+    promo_amount INT NOT NULL,
+    promo_start DATETIME NOT NULL,
+    promo_end DATETIME NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1,
+    FOREIGN KEY (tea_id) REFERENCES Tea(id),
+    FOREIGN KEY (company_id) REFERENCES Company(id)
+);
+
+-- Tabela PersonalShelf
+CREATE TABLE PersonalShelf (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    user_id INT NOT NULL,
+    tea_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    rating INT,
+    note NVARCHAR(MAX),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1,
+    FOREIGN KEY (user_id) REFERENCES [User](id),
+    FOREIGN KEY (tea_id) REFERENCES Tea(id)
+);
+
+-- Tabela PersonalBrewingHistory
+CREATE TABLE PersonalBrewingHistory (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    personal_shelf_id INT NOT NULL,
+    temp INT NOT NULL,
+    brewing_time INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    note NVARCHAR(MAX),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    deleted_at DATETIME NULL,
+    is_active BIT DEFAULT 1,
+    FOREIGN KEY (personal_shelf_id) REFERENCES PersonalShelf(id)
+);
