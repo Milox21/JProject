@@ -1,0 +1,138 @@
+﻿@page "/teatypes"
+
+@using MobileTeaApp.Models
+@using MobileTeaApp.Services
+
+@inject ApiConnectionService<TeaType> ApiService
+
+<h3>Tea Types</h3>
+
+@if (TeaTypes == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Temperature</th>
+                <th>Brewing Time</th>
+                <th>Amount Per Cup</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var teaType in TeaTypes)
+            {
+                <tr>
+                    @if (teaType.Id == SelectedTeaTypeId)
+                    {
+                        <td>@teaType.Id</td>
+                        <td><input type="text" class="form-control" @bind="teaType.Name" /></td>
+                        <td><input type="text" class="form-control" @bind="teaType.Description" /></td>
+                        <td><input type="number" class="form-control" @bind="teaType.Temp" /></td>
+                        <td><input type="number" class="form-control" @bind="teaType.BrewingTime" /></td>
+                        <td><input type="text" class="form-control" @bind="teaType.AmountPerCup" /></td>
+                        <td>
+                            <button class="btn btn-success btn-sm" @onclick="SaveTeaType">Save</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>@teaType.Id</td>
+                        <td>@teaType.Name</td>
+                        <td>@teaType.Description</td>
+                        <td>@teaType.Temp</td>
+                        <td>@teaType.BrewingTime</td>
+                        <td>@teaType.AmountPerCup</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="() => EditTeaType(teaType)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteTeaType(teaType.Id)">Delete</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <h4>Add New Tea Type</h4>
+    <div class="form-group">
+        <label>Name:</label>
+        <input class="form-control" @bind="NewTeaType.Name" />
+    </div>
+    <div class="form-group">
+        <label>Description:</label>
+        <input class="form-control" @bind="NewTeaType.Description" />
+    </div>
+    <div class="form-group">
+        <label>Temperature:</label>
+        <input type="number" class="form-control" @bind="NewTeaType.Temp" />
+    </div>
+    <div class="form-group">
+        <label>Brewing Time (in minutes):</label>
+        <input type="number" class="form-control" @bind="NewTeaType.BrewingTime" />
+    </div>
+    <div class="form-group">
+        <label>Amount Per Cup:</label>
+        <input class="form-control" @bind="NewTeaType.AmountPerCup" />
+    </div>
+    <button class="btn btn-success" @onclick="AddTeaType">Add</button>
+</div>
+
+@code {
+    List<TeaType> TeaTypes;
+    int SelectedTeaTypeId;
+    TeaType NewTeaType = new TeaType();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeaTypes();
+        SelectedTeaTypeId = 0;
+    }
+
+    private async Task LoadTeaTypes()
+    {
+        TeaTypes = await ApiService.GetResources("api/TeaType");
+    }
+
+    private async Task AddTeaType()
+    {
+        await ApiService.PostResource("api/TeaType", NewTeaType);
+        await LoadTeaTypes();
+        NewTeaType = new TeaType(); // Clear the form
+    }
+
+    private void EditTeaType(TeaType teaType)
+    {
+        SelectedTeaTypeId = teaType.Id;
+    }
+
+    private async Task SaveTeaType()
+    {
+        var teaTypeToSave = TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId);
+        if (teaTypeToSave != null)
+        {
+            // Call your API to save the changes
+            await ApiService.PutResource($"api/TeaType/{teaTypeToSave.Id}", teaTypeToSave);
+            SelectedTeaTypeId = 0; // Reset to exit edit mode
+        }
+    }
+
+    private void CancelEdit()
+    {
+        SelectedTeaTypeId = 0; // Reset to exit edit mode
+    }
+
+    private async Task DeleteTeaType(int teaTypeId)
+    {
+        await ApiService.DeleteResource($"api/TeaType/{teaTypeId}");
+        await LoadTeaTypes();
+    }
+}

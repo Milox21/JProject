@@ -1,0 +1,83 @@
+﻿@page "/ps"
+
+@using MobileTeaApp.Models
+@using MobileTeaApp.Services
+
+@inject ApiConnectionService<Profile> ApiService
+@inject AuthService AuthService
+
+<h3>Ps</h3>
+
+<div class="login-container">
+
+  <h2>Login</h2>
+
+  <form @onsubmit="Login">
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="text" id="email" @bind="email" placeholder="Enter your email address">
+    </div>
+
+    <div class="form-group">
+      <label for="password">Password:</label>
+      <input type="password" id="password" @bind="password" placeholder="Enter your password">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Login</button>
+  </form>
+
+  <form @onsubmit="Register" class="register-form">
+    <h2>Register</h2>
+
+    <div class="form-group">
+      <label for="username">Username:</label>
+      <input type="text" id="username" @bind="username" placeholder="Enter your username">
+    </div>
+
+    <div class="form-group">
+      <label for="register-email">Email:</label>
+      <input type="text" id="register-email" @bind="email" placeholder="Enter your email address">
+    </div>
+
+    <div class="form-group">
+      <label for="register-password">Password:</label>
+      <input type="password" id="register-password" @bind="password" placeholder="Enter your password">
+    </div>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+
+  <label>@id</label>
+</div>
+
+
+@code {
+    private string email = "";
+    private string password = "";
+    private string username = "";
+
+    private bool loggedIn = false;
+
+    private int id = 0;
+    private async Task Login()
+    {
+        loggedIn = await AuthService.Login(email, password);
+        id = AuthService.Id;
+    }
+
+    private async Task Register()
+    {
+        Profile profile = new Profile
+        {
+            Email = email,
+            Password = password,
+            Username = username
+        };
+
+        loggedIn = await AuthService.Register(profile);
+        if(loggedIn)
+        {
+            id = 2;
+        } 
+    }
+}
