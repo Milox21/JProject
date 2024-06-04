@@ -17,7 +17,7 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<T>> GetByIdAsync(int id)
+        public virtual async Task<ActionResult<T>> GetByIdAsync(int id)
         {
             if (id == 0)
             {
@@ -34,7 +34,7 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
+        public virtual async Task<ActionResult<IEnumerable<T>>> GetAllAsync()
         {
             List<T> entities = await _context.Set<T>()
                                                 .Where(x => x.IsActive == true)
@@ -43,7 +43,7 @@ namespace API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateAsync([FromBody] T entity)
+        public virtual async Task<ActionResult> CreateAsync([FromBody] T entity)
         {
             if (entity == null)
             {
@@ -56,7 +56,7 @@ namespace API.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateAsync(int id, [FromBody] T entity)
+        public virtual async Task<ActionResult> UpdateAsync(int id, [FromBody] T entity)
         {
             if (id == 0 || entity == null)
             {
@@ -79,7 +79,7 @@ namespace API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult> DeleteAsync(int id)
+        public virtual async Task<ActionResult> DeleteAsync(int id)
         {
             if (id == 0)
             {

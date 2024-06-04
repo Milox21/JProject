@@ -1,0 +1,190 @@
+﻿@page "/tea"
+
+@using MobileTeaApp.Models
+@using MobileTeaApp.Services
+
+@inject ApiConnectionService<Tea> TeaService
+@inject ApiConnectionService<TeaType> TeaTypeService
+@inject ApiConnectionService<Company> CompanyService
+
+<h3>Tea List</h3>
+
+@if (teas == null || teaTypes == null || companies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Company</th>
+                <th>Origin</th>
+                <th>Price</th>
+                <th>Size</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tea in teas)
+            {
+                <tr>
+                    @if (tea.Id == selectedTeaId)
+                    {
+                        <td>@tea.Id</td>
+                        <td><input type="text" class="form-control" @bind="tea.Name" /></td>
+                        <td>
+                            <select class="form-control" @bind="tea.TeaTypeId">
+                                @foreach (var teaType in teaTypes)
+                                {
+                                    <option value="@teaType.Id">@teaType.Name</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-control" @bind="tea.CompanyId">
+                                @foreach (var company in companies)
+                                {
+                                    <option value="@company.Id">@company.Name</option>
+                                }
+                            </select>
+                        </td>
+                        <td><input type="text" class="form-control" @bind="tea.CountryOrigin" /></td>
+                        <td><input type="number" class="form-control" @bind="tea.Price" /></td>
+                        <td><input type="number" class="form-control" @bind="tea.Size" /></td>
+                        <td>
+                            <button class="btn btn-success btn-sm" @onclick="SaveTea">Save</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>@tea.Id</td>
+                        <td>@tea.Name</td>
+                        <td>@(tea.TeaType?.Name ?? "Unknown")</td>
+                        <td>@(tea.Company?.Name ?? "Unknown")</td>
+                        <td>@tea.CountryOrigin</td>
+                        <td>@tea.Price</td>
+                        <td>@tea.Size</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="() => EditTea(tea)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteTea(tea.Id)">Delete</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-4">
+        <h4>Add New Tea</h4>
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" @bind="newTea.Name" />
+        </div>
+        <div class="form-group">
+            <label>Type:</label>
+            <select class="form-control" @bind="newTea.TeaTypeId">
+                @foreach (var teaType in teaTypes)
+                {
+                    <option value="@teaType.Id">@teaType.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Company:</label>
+            <select class="form-control" @bind="newTea.CompanyId">
+                @foreach (var company in companies)
+                {
+                    <option value="@company.Id">@company.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Country:</label>
+            <input class="form-control" @bind="newTea.CountryOrigin" />
+        </div>
+        <div class="form-group">
+            <label>Price:</label>
+            <input type="number" class="form-control" @bind="newTea.Price" />
+        </div>
+        <div class="form-group">
+            <label>Size:</label>
+            <input class="form-control" @bind="newTea.Size" />
+        </div>
+        <button class="btn btn-success" @onclick="AddTea">Add</button>
+    </div>
+}
+
+
+
+@code {
+    private List<Tea> teas;
+    private List<TeaType> teaTypes;
+    private List<Company> companies;
+    private int selectedTeaId;
+    private Tea newTea = new Tea();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeas();
+        await LoadTeaTypes();
+        await LoadCompanies();
+        selectedTeaId = 0;
+    }
+
+    private async Task LoadTeas()
+    {
+        teas = await TeaService.GetResources("api/Tea");
+    }
+
+    private async Task LoadTeaTypes()
+    {
+        teaTypes = await TeaTypeService.GetResources("api/TeaType");
+    }
+
+    private async Task LoadCompanies()
+    {
+        companies = await CompanyService.GetResources("api/Company");
+    }
+
+    private async Task AddTea()
+    {
+        newTea.Company = companies.FirstOrDefault(c => c.Id == newTea.CompanyId);
+        newTea.TeaType = teaTypes.FirstOrDefault(t => t.Id == newTea.TeaTypeId);
+
+        await TeaService.PostResource("api/Tea", newTea);
+        await LoadTeas();
+        newTea = new Tea(); // Clear the form
+    }
+
+    private void EditTea(Tea tea)
+    {
+        selectedTeaId = tea.Id;
+    }
+
+    private async Task SaveTea()
+    {
+        var teaToSave = teas.FirstOrDefault(t => t.Id == selectedTeaId);
+        if (teaToSave != null)
+        {
+            await TeaService.PutResource($"api/Tea/{teaToSave.Id}", teaToSave);
+            selectedTeaId = 0; // Exit edit mode
+        }
+        await LoadTeas();
+    }
+
+    private void CancelEdit()
+    {
+        selectedTeaId = 0; // Exit edit mode
+    }
+
+    private async Task DeleteTea(int teaId)
+    {
+        await TeaService.DeleteResource($"api/Tea/{teaId}");
+        await LoadTeas();
+    }
+}
