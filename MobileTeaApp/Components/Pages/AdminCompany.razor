@@ -1,0 +1,124 @@
+﻿@page "/company"
+
+@using MobileTeaApp.Models
+@using MobileTeaApp.Services
+
+@inject ApiConnectionService<Company> ApiService
+
+<h3>Companies</h3>
+
+@if (Companies == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var company in Companies)
+            {
+                <tr>
+                    @if (company.Id == SelectedCompanyId)
+                    {
+                        <td>@company.Id</td>
+                        <td><input type="text" class="form-control" @bind="company.Name" /></td>
+                        <td><input type="text" class="form-control" @bind="company.Email" /></td>
+                        <td><input type="text" class="form-control" @bind="company.PhoneNumber" /></td>
+                        <td>
+                            <button class="btn btn-success btn-sm" @onclick="SaveCompany">Save</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
+                        </td>
+                    }
+                    else
+                    {
+                        <td>@company.Id</td>
+                        <td>@company.Name</td>
+                        <td>@company.Email</td>
+                        <td>@company.PhoneNumber</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" @onclick="() => EditCompany(company)">Edit</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteCompany(company.Id)">Delete</button>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<div class="mt-4">
+    <h4>Add New Company</h4>
+    <div class="form-group">
+        <label>Name:</label>
+        <input class="form-control" @bind="NewCompany.Name" />
+    </div>
+    <div class="form-group">
+        <label>Email:</label>
+        <input class="form-control" @bind="NewCompany.Email" />
+    </div>
+    <div class="form-group">
+        <label>PhoneNumber:</label>
+        <input type="number" class="form-control" @bind="NewCompany.PhoneNumber" />
+    </div>
+    <button class="btn btn-success" @onclick="AddCompany">Add</button>
+</div>
+
+@code {
+    List<Company> Companies;
+    int SelectedCompanyId;
+    Company NewCompany = new Company();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCompanies();
+        SelectedCompanyId = 0;
+    }
+
+    private async Task LoadCompanies()
+    {
+        Companies = await ApiService.GetResources("api/Company");
+    }
+
+    private async Task AddCompany()
+    {
+        await ApiService.PostResource("api/Company", NewCompany);
+        await LoadCompanies();
+        NewCompany = new Company();
+    }
+
+    private void EditCompany(Company item)
+    {
+        SelectedCompanyId = item.Id;
+    }
+
+    private async Task SaveCompany()
+    {
+        var CompanyToSave = Companies.FirstOrDefault(t => t.Id == SelectedCompanyId);
+        if (CompanyToSave != null)
+        {
+            await ApiService.PutResource($"api/Company/{CompanyToSave.Id}", CompanyToSave);
+            SelectedCompanyId = 0;
+        }
+        await LoadCompanies();
+    }
+
+    private void CancelEdit()
+    {
+        SelectedCompanyId = 0;
+    }
+
+    private async Task DeleteCompany(int itemid)
+    {
+        await ApiService.DeleteResource($"api/Company/{itemid}");
+        await LoadCompanies();
+    }
+}

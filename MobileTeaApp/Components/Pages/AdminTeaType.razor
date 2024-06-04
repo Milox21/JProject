@@ -106,7 +106,7 @@ else
     {
         await ApiService.PostResource("api/TeaType", NewTeaType);
         await LoadTeaTypes();
-        NewTeaType = new TeaType(); // Clear the form
+        NewTeaType = new TeaType(); 
     }
 
     private void EditTeaType(TeaType teaType)
@@ -118,16 +118,16 @@ else
     {
         var teaTypeToSave = TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId);
         if (teaTypeToSave != null)
-        {
-            // Call your API to save the changes
+        {  
             await ApiService.PutResource($"api/TeaType/{teaTypeToSave.Id}", teaTypeToSave);
-            SelectedTeaTypeId = 0; // Reset to exit edit mode
+            SelectedTeaTypeId = 0; 
         }
+        await LoadTeaTypes();
     }
 
     private void CancelEdit()
     {
-        SelectedTeaTypeId = 0; // Reset to exit edit mode
+        SelectedTeaTypeId = 0; 
     }
 
     private async Task DeleteTeaType(int teaTypeId)
