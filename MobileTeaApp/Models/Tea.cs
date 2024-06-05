@@ -19,5 +19,8 @@ namespace MobileTeaApp.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
+
+        public TeaType TeaType { get; set; }
+        public Company Company { get; set; }
     }
 }
