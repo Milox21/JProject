@@ -21,6 +21,5 @@ namespace MobileTeaApp.Models
         public bool? IsActive { get; set; }
 
         public TeaDTO Tea { get; set; } = null!;
-        public ICollection<PersonalBrewingHistoryDTO>? PersonalBrewingHistories { get; set; }
     }
 }

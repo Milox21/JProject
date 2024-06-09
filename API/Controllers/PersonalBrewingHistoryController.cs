@@ -48,5 +48,47 @@ namespace API.Controllers
                 return Ok("Not enough tea in shelf.");
             }
         }
+
+        [HttpGet("PersonalHistory/{id}")]
+        public async Task<ActionResult> GetAllByIdAsync(int id)
+        {
+            if (id == null)
+            {
+                return BadRequest("id is null.");
+            }
+
+            var personalBrewingHistories = await _context.PersonalBrewingHistories
+                .Include(pbh => pbh.PersonalShelf)
+                .Include(pbh => pbh.PersonalShelf.Tea)
+                .Where(pbh => pbh.PersonalShelf.ProfileId == id && pbh.IsActive == true)
+                .ToListAsync();
+
+            List<PersonalBrewingHistoryDTO> personalBrewingHistoriesDTO = personalBrewingHistories.Select(pbh => new PersonalBrewingHistoryDTO
+            {
+                Id = pbh.Id,
+                PersonalShelfId = pbh.PersonalShelfId,
+                Temp = pbh.Temp,
+                BrewingTime = pbh.BrewingTime,
+                Amount = pbh.Amount,
+                Note = pbh.Note,
+                CreatedAt = pbh.CreatedAt,
+                UpdatedAt = pbh.UpdatedAt,
+                DeletedAt = pbh.DeletedAt,
+                IsActive = pbh.IsActive,
+                Tea = new TeaDTO
+                {
+                    Id = pbh.PersonalShelf.Tea.Id,
+                    Name = pbh.PersonalShelf.Tea.Name,
+                    TeaTypeId = pbh.PersonalShelf.Tea.TeaTypeId,
+                    CompanyId = pbh.PersonalShelf.Tea.CompanyId,
+                    CountryOrigin = pbh.PersonalShelf.Tea.CountryOrigin,
+                    Price = pbh.PersonalShelf.Tea.Price,
+                    Size = pbh.PersonalShelf.Tea.Size
+                }
+            }).ToList();
+
+            List<PersonalBrewingHistoryDTO> sortedPersonalBrewingHistoriesDTO = personalBrewingHistoriesDTO.OrderByDescending(pbh => pbh.CreatedAt).ToList();
+            return Ok(sortedPersonalBrewingHistoriesDTO);
+        }
     }
 }

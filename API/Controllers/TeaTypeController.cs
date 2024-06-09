@@ -11,9 +11,7 @@ namespace API.Controllers
     [ApiController]
     public class TeaTypeController : BaseApiController<TeaTypeDTO>
     {
-        public TeaTypeController() : base()
-        {
-        }
+        public TeaTypeController() : base() {}
 
         [HttpGet("{id}")]
         public override async Task<ActionResult<TeaTypeDTO>> GetByIdAsync(int id)
@@ -99,7 +97,7 @@ namespace API.Controllers
                             PromoAmount = p.PromoAmount,
                             PromoStart = p.PromoStart,
                             PromoEnd = p.PromoEnd,
-                            IsActive = p.IsActive
+                            IsActive = true
                         })
                         .FirstOrDefault()
                 }).ToList()
@@ -188,7 +186,7 @@ namespace API.Controllers
             item.BrewingTime = teaTypeDto.BrewingTime;
             item.AmountPerCup = teaTypeDto.AmountPerCup;
             item.UpdatedAt = DateTime.UtcNow;
-            item.IsActive = teaTypeDto.IsActive;
+            item.IsActive = true;
 
             _context.TeaTypes.Update(item);
             await _context.SaveChangesAsync();

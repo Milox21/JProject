@@ -166,11 +166,27 @@ namespace API.Controllers
             item.Price = teaDto.Price;
             item.Size = teaDto.Size;
             item.UpdatedAt = DateTime.UtcNow;
-            item.IsActive = teaDto.IsActive;
+            item.IsActive = true;
 
             _context.Teas.Update(item);
             await _context.SaveChangesAsync();
             return Ok("Tea updated successfully");
+        }
+
+        [HttpDelete("{id}")]
+        public override async Task<ActionResult> DeleteAsync(int id)
+        {
+            var item = await _context.Teas.FindAsync(id);
+            if (item == null)
+            {
+                return NotFound();
+            }
+
+            item.DeletedAt = DateTime.UtcNow;
+            item.IsActive = false;
+
+            await _context.SaveChangesAsync();
+            return Ok("Personal shelf item deleted successfully.");
         }
     }
 }

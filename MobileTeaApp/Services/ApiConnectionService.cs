@@ -12,7 +12,8 @@ namespace MobileTeaApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
-
+        
+        //zmienna
         public ApiConnectionService(HttpClient httpClient)
         {
             _httpClient = httpClient;
@@ -35,17 +36,33 @@ namespace MobileTeaApp.Services
 
         public async Task<List<T>> GetResources(string address)
         {
-            var response = await _httpClient.GetStringAsync(address);
-            var resources = JsonSerializer.Deserialize<List<T>>(response, _jsonOptions);
-            return resources;
+            try
+            {
 
+                var response = await _httpClient.GetStringAsync(address);
+                var resources = JsonSerializer.Deserialize<List<T>>(response, _jsonOptions);
+                return resources;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return null;
         }
 
         public async Task PostResource(string address, T resource)
         {
+            try
+            {
             var jsonResource = JsonSerializer.Serialize(resource, _jsonOptions);
             var content = new StringContent(jsonResource, Encoding.UTF8, "application/json");
             await _httpClient.PostAsync(address, content);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
         }
 
         public async Task PutResource(string address, T resource)

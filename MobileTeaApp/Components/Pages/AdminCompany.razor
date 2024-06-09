@@ -13,64 +13,74 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var company in Companies)
-            {
-                <tr>
+
+    <div class="container mt-4">
+        <h4>Add New Company</h4>
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" @bind="NewCompany.Name" />
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" class="form-control" @bind="NewCompany.Email" />
+        </div>
+        <div class="form-group">
+            <label>Phone Number:</label>
+            <input type="text" class="form-control" @bind="NewCompany.PhoneNumber" />
+        </div>
+        <button class="btn btn-success" style="margin: 8px;" @onclick="AddCompany">Add</button>
+    </div>
+
+    <div class="container">
+        @foreach (var company in Companies)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
                     @if (company.Id == SelectedCompanyId)
                     {
-                        <td>@company.Id</td>
-                        <td><input type="text" class="form-control" @bind="company.Name" /></td>
-                        <td><input type="text" class="form-control" @bind="company.Email" /></td>
-                        <td><input type="text" class="form-control" @bind="company.PhoneNumber" /></td>
-                        <td>
-                            <button class="btn btn-success btn-sm" @onclick="SaveCompany">Save</button>
-                            <button class="btn btn-secondary btn-sm" @onclick="CancelEdit">Cancel</button>
-                        </td>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" class="form-control" @bind="company.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" class="form-control" @bind="company.Email" />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="text" class="form-control" @bind="company.PhoneNumber" />
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-success" @onclick="SaveCompany">Save</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        </div>
                     }
                     else
                     {
-                        <td>@company.Id</td>
-                        <td>@company.Name</td>
-                        <td>@company.Email</td>
-                        <td>@company.PhoneNumber</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" @onclick="() => EditCompany(company)">Edit</button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteCompany(company.Id)">Delete</button>
-                        </td>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <p>@company.Name</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <p>@company.Email</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <p>@company.PhoneNumber</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary" @onclick="() => EditCompany(company)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteCompany(company.Id)">Delete</button>
+                        </div>
                     }
-                </tr>
-            }
-        </tbody>
-    </table>
+                </div>
+            </div>
+        }
+    </div>
 }
 
-<div class="mt-4">
-    <h4>Add New Company</h4>
-    <div class="form-group">
-        <label>Name:</label>
-        <input class="form-control" @bind="NewCompany.Name" />
-    </div>
-    <div class="form-group">
-        <label>Email:</label>
-        <input class="form-control" @bind="NewCompany.Email" />
-    </div>
-    <div class="form-group">
-        <label>PhoneNumber:</label>
-        <input type="number" class="form-control" @bind="NewCompany.PhoneNumber" />
-    </div>
-    <button class="btn btn-success" @onclick="AddCompany">Add</button>
-</div>
+
 
 @code {
     List<Company> Companies;
@@ -111,9 +121,10 @@ else
         await LoadCompanies();
     }
 
-    private void CancelEdit()
+    private async void CancelEdit()
     {
         SelectedCompanyId = 0;
+        await LoadCompanies();
     }
 
     private async Task DeleteCompany(int itemid)

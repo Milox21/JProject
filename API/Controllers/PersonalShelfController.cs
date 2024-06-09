@@ -102,23 +102,6 @@ namespace API.Controllers
         {
             try
             {
-                if (shelfDto == null)
-                {
-                    return BadRequest("PersonalShelf entity is null.");
-                }
-
-                var profile = await _context.Profiles.FindAsync(shelfDto.ProfileId);
-                if (profile == null)
-                {
-                    return BadRequest("Invalid ProfileId.");
-                }
-
-                var tea = await _context.Teas.FindAsync(shelfDto.TeaId);
-                if (tea == null)
-                {
-                    return BadRequest("Invalid TeaId.");
-                }
-
                 var entity = new PersonalShelf
                 {
                     ProfileId = shelfDto.ProfileId,
@@ -132,7 +115,7 @@ namespace API.Controllers
                 };
 
                 var existingShelfItem = await _context.PersonalShelves
-                                        .FirstOrDefaultAsync(ps => ps.ProfileId == shelfDto.ProfileId && ps.TeaId == shelfDto.TeaId);
+                                        .FirstOrDefaultAsync(ps => ps.ProfileId == shelfDto.ProfileId && ps.TeaId == shelfDto.TeaId && ps.IsActive == true);
 
                 string message = "";
                 if (existingShelfItem != null)
@@ -196,7 +179,9 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            _context.PersonalShelves.Remove(item);
+            item.DeletedAt = DateTime.UtcNow;
+            item.IsActive = false;
+
             await _context.SaveChangesAsync();
             return Ok("Personal shelf item deleted successfully.");
         }

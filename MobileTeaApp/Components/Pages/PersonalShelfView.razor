@@ -6,6 +6,7 @@
 @inject ApiConnectionService<PersonalBrewingHistory> PersonalBrewingHistoryService
 @inject ApiConnectionService<PersonalShelf> PersonalShelfService
 @inject AuthService AuthService
+@inject NavigationManager NavigationManager
 
 @if (personalShelves == null)
 {
@@ -23,11 +24,12 @@ else
                 <div class="note-rating-container">
                     <label for="note">Note:</label>
                     <input type="text" @bind="shelf.Note" class="note-input">
-                    <label for="rating">  Rating: </label>
+                    <label for="rating">Rating:</label>
                     <input type="number" @bind="shelf.Rating" min="1" max="5" class="rating-input">
-                    <button @onclick="() => Save(shelf)">Save</button>
                 </div>
-                <button @onclick="() => ToggleDescription(shelf.Id)">Brew new</button>
+                <button class="action-button" @onclick="() => Save(shelf)">Save</button>
+                <button class="action-button" @onclick="() => Delete(shelf)">Delete</button>
+                <button class="action-button" @onclick="() => ToggleDescription(shelf.Id)">Brew new</button>
                 @if (showDescriptionId == shelf.Id)
                 {
                     <div class="brew-description">
@@ -38,7 +40,7 @@ else
                         </div>
                         <p>Note: <input @bind="newBrewingHistory.Note"></input></p>
                     </div>
-                    <button @onclick="() => CreateBrewingHistory(shelf)">Create Brewing History</button>
+                    <button class="action-button" @onclick="() => CreateBrewingHistory(shelf)">Create Brewing History</button>
                 }
             </div>
         }
@@ -50,14 +52,13 @@ else
         border-color: royalblue;
         outline: none;
     }
-    input
-    {
+
+    input {
         border-radius: 10px;
         border-width: 1px;
         border-color: lightsteelblue;
     }
 
-    
     .shelf-container {
         display: flex;
         flex-wrap: wrap;
@@ -65,6 +66,7 @@ else
         justify-content: center;
         padding: 1rem;
         width: 100%;
+        box-sizing: border-box;
     }
 
     .shelf-item-card {
@@ -73,8 +75,9 @@ else
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         padding: 1rem;
-        width: 100%;
+        flex: 1 1 300px; /* Minimum width of 300px before wrapping */
         margin: 1rem;
+        box-sizing: border-box;
         text-align: center;
     }
 
@@ -93,11 +96,14 @@ else
         align-items: center;
         justify-content: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .note-input, .rating-input {
         padding: 0.25rem;
-        width: auto;
+        flex: 1 1 100px;
     }
 
     .brew-description {
@@ -105,44 +111,47 @@ else
         padding: 0.5rem;
         border-top: 1px solid #ddd;
         transition: max-height 0.3s ease-out;
+        width: 100%;
+        box-sizing: border-box;
     }
-
-    
 
     .brew-input-container {
         display: flex;
         justify-content: center;
         gap: 0.5rem;
+        flex-wrap: wrap;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .shelf-item-card input {
         margin-bottom: 0.5rem;
         padding: 0.25rem;
-        width: auto;
+        width: 100%;
         box-sizing: border-box;
     }
 
     .brew-input-container input {
         margin-bottom: 0.5rem;
         padding: 0.25rem;
-        width: 2.5rem;
+        flex: 1 1 25px;
         box-sizing: border-box;
     }
-    .shelf-item-card button {
+
+    .action-button {
         margin-top: 0.5rem;
         font-size: 0.8rem;
         color: grey;
         border: none;
         border-radius: 4px;
-        padding: 0.25rem 2rem;
+        padding: 0.25rem 1rem;
         cursor: pointer;
     }
 
-    .shelf-item-card button:hover {
-        color: black;
-        background: #eee;
-    }
-
+        .action-button:hover {
+            color: black;
+            background: #eee;
+        }
 </style>
 
 @code {
@@ -152,7 +161,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        personalShelves = await PersonalShelfService.GetResources($"api/PersonalShelf/all/{AuthService.Id}");
+        await LoadData();
         newBrewingHistory = new PersonalBrewingHistory();
     }
 
@@ -171,12 +180,21 @@ else
             };
 
         await PersonalBrewingHistoryService.PostResource("api/PersonalBrewingHistory", brewingHistory);
+
+        NavigationManager.NavigateTo("/BrewingHistoryView");
     }
 
     private async Task Save(PersonalShelf shelf)
     {
         await PersonalShelfService.PutResource($"api/PersonalShelf/{shelf.Id}", shelf);
     }
+
+    private async Task Delete(PersonalShelf shelf)
+    {
+        await PersonalShelfService.DeleteResource($"api/PersonalShelf/{shelf.Id}");
+        await LoadData();
+    }
+
     private void ToggleDescription(int teaId)
     {
         if (showDescriptionId == teaId)
@@ -187,5 +205,10 @@ else
         {
             showDescriptionId = teaId;
         }
+    }
+
+    private async Task LoadData()
+    {
+        personalShelves = await PersonalShelfService.GetResources($"api/PersonalShelf/all/{AuthService.Id}");
     }
 }

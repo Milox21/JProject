@@ -1,4 +1,5 @@
-﻿using API.Models.ModelInterfaces;
+﻿using API.Models;
+using API.Models.ModelInterfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,6 @@ namespace MobileTeaApp.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
+        public TeaDTO? Tea { get; set; }
     }
 }
