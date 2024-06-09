@@ -138,7 +138,9 @@ else
 
     private async Task LoadTeas()
     {
+
         teas = await TeaService.GetResources("api/Tea");
+    
     }
 
     private async Task LoadTeaTypes()

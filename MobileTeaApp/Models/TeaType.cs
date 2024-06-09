@@ -18,5 +18,8 @@ namespace MobileTeaApp.Models
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
+
+        public ICollection<Tea>? Teas { get; set; }
+        public PromotionCodeType? PromotionCodeType { get; set; }
     }
 }

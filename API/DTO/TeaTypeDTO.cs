@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Models.ModelInterfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,22 +7,21 @@ using System.Threading.Tasks;
 
 namespace MobileTeaApp.Models
 {
-    public class Tea
+    public class TeaTypeDTO : IBaseModel
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int TeaTypeId { get; set; }
-        public int CompanyId { get; set; }
-        public string CountryOrigin { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public int Size { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public int Temp { get; set; }
+        public int BrewingTime { get; set; }
+        public string AmountPerCup { get; set; } = string.Empty;
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
 
-        public Company? Company { get; set; } 
-        public TeaType? TeaType { get; set; }
-        public PromotionCodeTea? PromotionCodeTea { get; set; }
+        public ICollection<TeaDTO>? Teas { get; set; }
+
+        public PromotionCodeTypeDTO? PromotionCodeType { get; set; }
     }
 }

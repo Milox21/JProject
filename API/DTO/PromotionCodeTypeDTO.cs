@@ -1,27 +1,26 @@
-﻿using System;
+﻿using API.Models;
+using API.Models.ModelInterfaces;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MobileTeaApp.Models
 {
-    public class Tea
+    public class PromotionCodeTypeDTO : IBaseModel
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
         public int TeaTypeId { get; set; }
         public int CompanyId { get; set; }
-        public string CountryOrigin { get; set; } = string.Empty;
-        public decimal Price { get; set; }
-        public int Size { get; set; }
+        public string PromoCode { get; set; } = string.Empty;
+        public int PromoAmount { get; set; }
+        public DateTime PromoStart { get; set; }
+        public DateTime PromoEnd { get; set; }
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
-
-        public Company? Company { get; set; } 
-        public TeaType? TeaType { get; set; }
-        public PromotionCodeTea? PromotionCodeTea { get; set; }
     }
 }

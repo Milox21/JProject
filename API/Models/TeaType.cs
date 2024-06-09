@@ -41,8 +41,8 @@ namespace API.Models
         public bool? IsActive { get; set; }
 
         [InverseProperty("TeaType")]
-        public virtual ICollection<PromotionCodeType> PromotionCodeTypes { get; set; }
+        public virtual ICollection<PromotionCodeType>? PromotionCodeTypes { get; set; }
         [InverseProperty("TeaType")]
-        public virtual ICollection<Tea> Teas { get; set; }
+        public virtual ICollection<Tea>? Teas { get; set; }
     }
 }

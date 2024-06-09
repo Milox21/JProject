@@ -1,4 +1,5 @@
-﻿using System;
+﻿using API.Models.ModelInterfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MobileTeaApp.Models
 {
-    public class PersonalShelf
+    public class PersonalShelfDTO : IBaseModel
     {
         public int Id { get; set; }
         public int ProfileId { get; set; }
@@ -19,7 +20,7 @@ namespace MobileTeaApp.Models
         public DateTime? DeletedAt { get; set; }
         public bool? IsActive { get; set; }
 
-        public Tea Tea { get; set; } = null!;
-        public ICollection<PersonalBrewingHistory> PersonalBrewingHistories { get; set; } = null!;
+        public TeaDTO Tea { get; set; } = null!;
+        public ICollection<PersonalBrewingHistoryDTO>? PersonalBrewingHistories { get; set; }
     }
 }

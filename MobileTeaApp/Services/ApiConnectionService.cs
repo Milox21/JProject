@@ -18,16 +18,19 @@ namespace MobileTeaApp.Services
             _httpClient = httpClient;
             _jsonOptions = new JsonSerializerOptions
             {
-                ReferenceHandler = ReferenceHandler.Preserve,
-                PropertyNameCaseInsensitive = true
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+                //PropertyNameCaseInsensitive = true
             };
         }
 
         public async Task<T> GetResource(string address)
         {
-            var response = await _httpClient.GetStringAsync(address);
-            var resource = JsonSerializer.Deserialize<T>(response, _jsonOptions);
-            return resource;
+            
+                var response = await _httpClient.GetStringAsync(address);
+                var resource = JsonSerializer.Deserialize<T>(response, _jsonOptions);
+                return resource;
+            
+           
         }
 
         public async Task<List<T>> GetResources(string address)
@@ -35,6 +38,7 @@ namespace MobileTeaApp.Services
             var response = await _httpClient.GetStringAsync(address);
             var resources = JsonSerializer.Deserialize<List<T>>(response, _jsonOptions);
             return resources;
+
         }
 
         public async Task PostResource(string address, T resource)

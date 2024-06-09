@@ -1,18 +1,16 @@
 ﻿using API.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using MobileTeaApp.Models;
 
 namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TeaController : BaseApiController<Tea>
+    public class TeaController : BaseApiController<TeaDTO>
     {
-        public TeaController() { }
-
         [HttpGet("{id}")]
-        public override async Task<ActionResult<Tea>> GetByIdAsync(int id)
+        public override async Task<ActionResult<TeaDTO>> GetByIdAsync(int id)
         {
             if (id == 0)
             {
@@ -27,57 +25,126 @@ namespace API.Controllers
             {
                 return NotFound();
             }
-            return Ok(item);
+
+            var teaDto = new TeaDTO
+            {
+                Id = item.Id,
+                Name = item.Name,
+                TeaTypeId = item.TeaTypeId,
+                CompanyId = item.CompanyId,
+                CountryOrigin = item.CountryOrigin,
+                Price = item.Price,
+                Size = item.Size,
+                TeaType = new TeaTypeDTO
+                {
+                    Id = item.TeaType.Id,
+                    Name = item.TeaType.Name,
+                    Description = item.TeaType.Description,
+                    Temp = item.TeaType.Temp,
+                    BrewingTime = item.TeaType.BrewingTime,
+                    AmountPerCup = item.TeaType.AmountPerCup,
+                },
+                Company = new CompanyDTO
+                {
+                    Id = item.Company.Id,
+                    Name = item.Company.Name,
+                    Email = item.Company.Email,
+                    PhoneNumber = item.Company.PhoneNumber,
+                }
+            };
+
+            return Ok(teaDto);
         }
 
         [HttpGet]
-        public override async Task<ActionResult<IEnumerable<Tea>>> GetAllAsync()
+        public override async Task<ActionResult<IEnumerable<TeaDTO>>> GetAllAsync()
         {
             var teas = await _context.Teas
                                      .Include(t => t.TeaType)
                                      .Include(t => t.Company)
                                      .Where(x => x.IsActive == true)
                                      .ToListAsync();
-            return Ok(teas);
+
+            var teaDtos = teas.Select(item => new TeaDTO
+            {
+                Id = item.Id,
+                Name = item.Name,
+                TeaTypeId = item.TeaTypeId,
+                CompanyId = item.CompanyId,
+                CountryOrigin = item.CountryOrigin,
+                Price = item.Price,
+                Size = item.Size,
+                TeaType = new TeaTypeDTO
+                {
+                    Id = item.TeaType.Id,
+                    Name = item.TeaType.Name,
+                    Description = item.TeaType.Description,
+                    Temp = item.TeaType.Temp,
+                    BrewingTime = item.TeaType.BrewingTime,
+                    AmountPerCup = item.TeaType.AmountPerCup,
+                },
+                Company = new CompanyDTO
+                {
+                    Id = item.Company.Id,
+                    Name = item.Company.Name,
+                    Email = item.Company.Email,
+                    PhoneNumber = item.Company.PhoneNumber,
+                }
+            }).ToList();
+
+            return Ok(teaDtos);
         }
 
         [HttpPost]
-        public override async Task<ActionResult> CreateAsync([FromBody] Tea entity)
+        public override async Task<ActionResult> CreateAsync([FromBody] TeaDTO teaDto)
         {
-            if (entity == null)
+            try
             {
-                return BadRequest("Tea entity is null.");
-            }
+                if (teaDto == null)
+                {
+                    return BadRequest("Tea entity is null.");
+                }
 
-            // Validate TeaTypeId
-            var teaType = await _context.TeaTypes.FindAsync(entity.TeaTypeId);
-            if (teaType == null)
+                var teaType = await _context.TeaTypes.FindAsync(teaDto.TeaTypeId);
+                if (teaType == null)
+                {
+                    return BadRequest("Invalid TeaTypeId.");
+                }
+
+                var company = await _context.Companies.FindAsync(teaDto.CompanyId);
+                if (company == null)
+                {
+                    return BadRequest("Invalid CompanyId.");
+                }
+
+                var entity = new Tea
+                {
+                    Name = teaDto.Name,
+                    TeaTypeId = teaDto.TeaTypeId,
+                    CompanyId = teaDto.CompanyId,
+                    CountryOrigin = teaDto.CountryOrigin,
+                    Price = teaDto.Price,
+                    Size = teaDto.Size,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                await _context.Teas.AddAsync(entity);
+                await _context.SaveChangesAsync();
+
+                return Ok("Tea created successfully.");
+            }
+            catch (Exception ex)
             {
-                return BadRequest("Invalid TeaTypeId.");
+                return BadRequest(ex.Message);
             }
-
-            // Validate CompanyId
-            var company = await _context.Companies.FindAsync(entity.CompanyId);
-            if (company == null)
-            {
-                return BadRequest("Invalid CompanyId.");
-            }
-
-            // Set the navigation properties
-            entity.TeaType = teaType;
-            entity.Company = company;
-
-            await _context.Teas.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
-            return Ok("Tea created successfully.");
         }
 
-
         [HttpPut("{id}")]
-        public override async Task<ActionResult> UpdateAsync(int id, [FromBody] Tea entity)
+        public override async Task<ActionResult> UpdateAsync(int id, [FromBody] TeaDTO teaDto)
         {
-            if (id == 0 || entity == null)
+            if (id == 0 || teaDto == null)
             {
                 return BadRequest();
             }
@@ -92,8 +159,14 @@ namespace API.Controllers
                 return NotFound();
             }
 
-            _context.Entry(item).CurrentValues.SetValues(entity);
-            item.UpdatedAt = DateTime.Now;
+            item.Name = teaDto.Name;
+            item.TeaTypeId = teaDto.TeaTypeId;
+            item.CompanyId = teaDto.CompanyId;
+            item.CountryOrigin = teaDto.CountryOrigin;
+            item.Price = teaDto.Price;
+            item.Size = teaDto.Size;
+            item.UpdatedAt = DateTime.UtcNow;
+            item.IsActive = teaDto.IsActive;
 
             _context.Teas.Update(item);
             await _context.SaveChangesAsync();
