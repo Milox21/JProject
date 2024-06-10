@@ -1,7 +1,9 @@
 ﻿using API.Models;
-using Microsoft.AspNetCore.Http;
+using API.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace API.Controllers
 {
@@ -9,31 +11,37 @@ namespace API.Controllers
     [ApiController]
     public class ProfileController : BaseApiController<Profile>
     {
-        public ProfileController() : base() { }
+        private readonly UserService _userService;
+        public ProfileController() : base() 
+        {
+            _userService = new UserService(_context);
+        }
 
 
         [HttpPost("login")]
-        public async Task<ActionResult<int>> Login([FromBody] Profile entity)
+        public async Task<ActionResult<int>> LoginAsync([FromBody] Profile entity)
         {
-            Profile? profile = await _context.Set<Profile>().FirstOrDefaultAsync(x => x.Email == entity.Email && x.Password == entity.Password);
-            if (profile == null)
+            var (success, userId) = await _userService.Login(entity.Email, entity.Password);
+            if (!success)
             {
-                return NotFound();
+                return Unauthorized("Invalid email or password.");
             }
-            return Ok(profile.Id);
+            return Ok(userId);
         }
 
         [HttpPost("register")]
         public async Task<ActionResult> RegisterAsync([FromBody] Profile entity)
         {
-            if (entity == null)
+            
+            bool success = await _userService.Register(entity);
+            if (!success)
             {
-                return BadRequest();
+                return BadRequest("Registration failed. Email may already be in use.");
             }
-
-            await _context.Set<Profile>().AddAsync(entity);
-            await _context.SaveChangesAsync();
-            return Ok("entity created successfully");
+            return Ok("Registration successful.");
         }
+
+        
+
     }
 }

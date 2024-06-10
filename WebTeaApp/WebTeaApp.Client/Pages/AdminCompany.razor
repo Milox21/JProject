@@ -1,0 +1,135 @@
+﻿@page "/company"
+
+@using WebTeaApp.Models
+@using WebTeaApp.Services
+
+@inject ApiConnectionService<Company> ApiService
+
+<h3>Companies</h3>
+
+@if (Companies == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+
+    <div class="container mt-4">
+        <h4>Add New Company</h4>
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" @bind="NewCompany.Name" />
+        </div>
+        <div class="form-group">
+            <label>Email:</label>
+            <input type="email" class="form-control" @bind="NewCompany.Email" />
+        </div>
+        <div class="form-group">
+            <label>Phone Number:</label>
+            <input type="text" class="form-control" @bind="NewCompany.PhoneNumber" />
+        </div>
+        <button class="btn btn-success" style="margin: 8px;" @onclick="AddCompany">Add</button>
+    </div>
+
+    <div class="container">
+        @foreach (var company in Companies)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    @if (company.Id == SelectedCompanyId)
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" class="form-control" @bind="company.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" class="form-control" @bind="company.Email" />
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="text" class="form-control" @bind="company.PhoneNumber" />
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-success" @onclick="SaveCompany">Save</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <p>@company.Name</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <p>@company.Email</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <p>@company.PhoneNumber</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary" @onclick="() => EditCompany(company)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteCompany(company.Id)">Delete</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+
+
+@code {
+    List<Company> Companies;
+    int SelectedCompanyId;
+    Company NewCompany = new Company();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCompanies();
+        SelectedCompanyId = 0;
+    }
+
+    private async Task LoadCompanies()
+    {
+        Companies = await ApiService.GetResources("api/Company");
+    }
+
+    private async Task AddCompany()
+    {
+        await ApiService.PostResource("api/Company", NewCompany);
+        await LoadCompanies();
+        NewCompany = new Company();
+    }
+
+    private void EditCompany(Company item)
+    {
+        SelectedCompanyId = item.Id;
+    }
+
+    private async Task SaveCompany()
+    {
+        var CompanyToSave = Companies.FirstOrDefault(t => t.Id == SelectedCompanyId);
+        if (CompanyToSave != null)
+        {
+            await ApiService.PutResource($"api/Company/{CompanyToSave.Id}", CompanyToSave);
+            SelectedCompanyId = 0;
+        }
+        await LoadCompanies();
+    }
+
+    private async void CancelEdit()
+    {
+        SelectedCompanyId = 0;
+        await LoadCompanies();
+    }
+
+    private async Task DeleteCompany(int itemid)
+    {
+        await ApiService.DeleteResource($"api/Company/{itemid}");
+        await LoadCompanies();
+    }
+}

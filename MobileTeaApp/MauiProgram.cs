@@ -25,6 +25,7 @@ namespace MobileTeaApp
 
             builder.Services.AddScoped(typeof(ApiConnectionService<>));
             builder.Services.AddScoped<AuthService>();
+            builder.Services.AddScoped<PromoCodeService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
