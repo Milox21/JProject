@@ -4,7 +4,7 @@ namespace WebTeaApp.Services
 {
     internal class PromoCodeService
     {
-        public string ApplyPromoCode(Tea tea)
+        public static string ApplyPromoCode(Tea tea)
         {
             string priceString;
             decimal price;

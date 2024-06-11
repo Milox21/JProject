@@ -14,174 +14,76 @@
 }
 else
 {
-    <div class="shelf-container">
+    <div class="container mt-4">
         @foreach (var shelf in personalShelves)
         {
-            <div class="shelf-item-card">
-                <h4>@shelf.Tea.Name</h4>
-                <p>Amount: @shelf.Amount g</p>
-                <p>Country of Origin: @shelf.Tea.CountryOrigin</p>
-                <div class="note-rating-container">
-                    <label for="note">Note:</label>
-                    <input type="text" @bind="shelf.Note" class="note-input">
-                    <label for="rating">Rating:</label>
-                    <input type="number" @bind="shelf.Rating" min="1" max="5" class="rating-input">
+            <div class="card mb-3 custom-shadow">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">@shelf.Tea.Name</h4>
                 </div>
-                <button class="action-button" @onclick="() => Save(shelf)">Save</button>
-                <button class="action-button" @onclick="() => Delete(shelf)">Delete</button>
-                <button class="action-button" @onclick="() => ToggleDescription(shelf.Id)">Brew new</button>
-                @if (showDescriptionId == shelf.Id)
-                {
-                    <div class="brew-description">
-                        <div class="brew-input-container">
-                            <p>Temp: <input @bind="newBrewingHistory.Temp"></input> </p>
-                            <p>Brewing Time: <input @bind="newBrewingHistory.BrewingTime"></input></p>
-                            <p>Amount: <input @bind="newBrewingHistory.Amount"></input></p>
-                        </div>
-                        <p>Note: <input @bind="newBrewingHistory.Note"></input></p>
+                <div class="card-body">
+                    <p>Amount: @shelf.Amount g</p>
+                    <p>Country of Origin: @shelf.Tea.CountryOrigin</p>
+                    <div class="mb-3">
+                        <label class="form-label">Note:</label>
+                        <input type="text" class="form-control" @bind="shelf.Note">
                     </div>
-                    <button class="action-button" @onclick="() => CreateBrewingHistory(shelf)">Create Brewing History</button>
-                }
+                    <div class="mb-3">
+                        <label class="form-label">Rating:</label>
+                        <input type="number" class="form-control" @bind="shelf.Rating" min="1" max="5">
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-outline-primary" @onclick="() => Save(shelf)">Save</button>
+                        <button class="btn btn-outline-danger" @onclick="() => Delete(shelf)">Delete</button>
+                        <button class="btn btn-outline-success" @onclick="() => ToggleDescription(shelf.Id)">Brew new</button>
+                    </div>
+                    @if (showDescriptionId == shelf.Id)
+                    {
+                        <div class="mt-3">
+                            <div class="mb-3">
+                                <label class="form-label">Temp:</label>
+                                <input type="text" class="form-control" @bind="newBrewingHistory.Temp">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Brewing Time:</label>
+                                <input type="text" class="form-control" @bind="newBrewingHistory.BrewingTime">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Amount:</label>
+                                <input type="text" class="form-control" @bind="newBrewingHistory.Amount">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Note:</label>
+                                <input type="text" class="form-control" @bind="newBrewingHistory.Note">
+                            </div>
+                            <button class="btn btn-outline-success" @onclick="() => CreateBrewingHistory(shelf)">Create Brewing History</button>
+                        </div>
+                    }
+                </div>
             </div>
         }
     </div>
 }
 
 <style>
-    input:focus {
-        border-color: royalblue;
-        outline: none;
+    .custom-shadow {
+        box-shadow: 5px 4px 8px rgba(0, 0, 0, 1);
     }
-
-    input {
-        border-radius: 10px;
-        border-width: 1px;
-        border-color: lightsteelblue;
-    }
-
-    .shelf-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        padding: 1rem;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .shelf-item-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
-        flex: 1 1 300px; /* Minimum width of 300px before wrapping */
-        margin: 1rem;
-        box-sizing: border-box;
-        text-align: center;
-    }
-
-        .shelf-item-card h4 {
-            margin-top: 0;
-            color: #333;
-            width: 100%;
-        }
-
-        .shelf-item-card p {
-            color: #666;
-        }
-
-    .note-rating-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .note-input, .rating-input {
-        padding: 0.25rem;
-        flex: 1 1 100px;
-    }
-
-    .brew-description {
-        margin-top: 0.5rem;
-        padding: 0.5rem;
-        border-top: 1px solid #ddd;
-        transition: max-height 0.3s ease-out;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .brew-input-container {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .shelf-item-card input {
-        margin-bottom: 0.5rem;
-        padding: 0.25rem;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .brew-input-container input {
-        margin-bottom: 0.5rem;
-        padding: 0.25rem;
-        flex: 1 1 25px;
-        box-sizing: border-box;
-    }
-
-    .action-button {
-        margin-top: 0.5rem;
-        font-size: 0.8rem;
-        color: grey;
-        border: none;
-        border-radius: 4px;
-        padding: 0.25rem 1rem;
-        cursor: pointer;
-    }
-
-        .action-button:hover {
-            color: black;
-            background: #eee;
-        }
 </style>
 
 @code {
     private List<PersonalShelf>? personalShelves;
     private int? showDescriptionId;
-    private PersonalBrewingHistory newBrewingHistory;
+    private PersonalBrewingHistory newBrewingHistory = new();
 
     protected override async Task OnInitializedAsync()
     {
         await LoadData();
-        newBrewingHistory = new PersonalBrewingHistory();
     }
 
-    private async Task CreateBrewingHistory(PersonalShelf shelf)
+    private async Task LoadData()
     {
-        var brewingHistory = new PersonalBrewingHistory
-            {
-                PersonalShelfId = shelf.Id,
-                Temp = newBrewingHistory.Temp,
-                BrewingTime = newBrewingHistory.BrewingTime,
-                Amount = newBrewingHistory.Amount,
-                Note = newBrewingHistory.Note,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                IsActive = true,
-            };
-
-        await PersonalBrewingHistoryService.PostResource("api/PersonalBrewingHistory", brewingHistory);
-
-        NavigationManager.NavigateTo("/BrewingHistoryView");
+        personalShelves = await PersonalShelfService.GetResources($"api/PersonalShelf/all/{AuthService.Id}");
     }
 
     private async Task Save(PersonalShelf shelf)
@@ -195,20 +97,27 @@ else
         await LoadData();
     }
 
-    private void ToggleDescription(int teaId)
+    private void ToggleDescription(int shelfId)
     {
-        if (showDescriptionId == teaId)
-        {
-            showDescriptionId = null;
-        }
-        else
-        {
-            showDescriptionId = teaId;
-        }
+        showDescriptionId = showDescriptionId == shelfId ? (int?)null : shelfId;
     }
 
-    private async Task LoadData()
+    private async Task CreateBrewingHistory(PersonalShelf shelf)
     {
-        personalShelves = await PersonalShelfService.GetResources($"api/PersonalShelf/all/{AuthService.Id}");
+        var brewingHistory = new PersonalBrewingHistory
+            {
+                PersonalShelfId = shelf.Id,
+                Temp = newBrewingHistory.Temp,
+                BrewingTime = newBrewingHistory.BrewingTime,
+                Amount = newBrewingHistory.Amount,
+                Note = newBrewingHistory.Note,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
+            };
+
+        await PersonalBrewingHistoryService.PostResource("api/PersonalBrewingHistory", brewingHistory);
+
+        NavigationManager.NavigateTo("/BrewingHistoryView");
     }
 }

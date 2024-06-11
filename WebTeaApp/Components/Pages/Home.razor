@@ -6,8 +6,8 @@
 @inject ApiConnectionService<Tea> TeaService
 @inject ApiConnectionService<TeaType> TeaTypeService
 @inject ApiConnectionService<PersonalShelf> PersonalShelfService
-@inject AuthService AuthService;
-@inject PromoCodeService PromoCodeService;
+@inject AuthService AuthService
+@inject PromoCodeService PromoCodeService
 
 @if (teaTypes == null)
 {
@@ -15,110 +15,52 @@
 }
 else
 {
-    <div class="tea-types-container">
+    <div id="app" class="container mt-4">
         @foreach (var teaType in teaTypes)
         {
-            <div class="tea-type-card">
-                <h4>@teaType.Name</h4>
-                <p>@teaType.Description</p>
-                @if (teaType.Teas != null && teaType.Teas.Count > 0)
-                {
-                    <ul>
-                        @foreach (var tea in teaType.Teas)
-                        {
-                            <li class="tea-item">
-                                <strong>@tea.Name</strong> - @CalculatePrice(tea)
-                                <button @onclick="() => AddToShelf(tea)">Add to shelf</button>
-                                <br>
-                                <button @onclick="() => ToggleDescription(tea.Id)">See More</button>
-                                @if (showDescriptionId == tea.Id)
-                                {
-                                    <div class="tea-description">
-                                        <p>Company: @tea.Company?.Name</p>
-                                        <p>Country of origin: @tea.CountryOrigin</p>
-                                        <p>Size of pack: @tea.Size g</p>
-                                        <p>Original Price: @tea.Price.ToString("C")</p>
+            <div class="card mb-3 custom-shadow">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">@teaType.Name</h4>
+                </div>
+                <div class="card-body">
+                    <p>@teaType.Description</p>
+                    @if (teaType.Teas != null && teaType.Teas.Count > 0)
+                    {
+                        <ul class="list-group">
+                            @foreach (var tea in teaType.Teas)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>@tea.Name</strong> - @CalculatePrice(tea)
+                                        <br>
+                                        <button class="btn btn-outline-primary p-1" @onclick="() => ToggleDescription(tea.Id)">See More</button>
+                                        @if (showDescriptionId == tea.Id)
+                                        {
+                                            <div class="mt-2">
+                                                <p>Company: @tea.Company?.Name</p>
+                                                <p>Country of origin: @tea.CountryOrigin</p>
+                                                <p>Size of pack: @tea.Size g</p>
+                                                <p>Original Price: @tea.Price.ToString("C")</p>
+                                            </div>
+                                        }
                                     </div>
-                                }
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <p>No teas available.</p>
-                }
+                                    <button class="btn btn-outline-primary" @onclick="() => AddToShelf(tea)">Add to shelf</button>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No teas available.</p>
+                    }
+                </div>
             </div>
         }
     </div>
 }
-
 <style>
-    .tea-types-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        justify-content: center;
-        padding: 1rem;
-        width: 100%;
-    }
-
-    .tea-type-card {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
-        width: 100%;
-        margin: 1rem;
-        text-align: center;
-    }
-
-        .tea-type-card h4 {
-            margin-top: 0;
-            color: #333;
-            width: 100%;
-        }
-
-        .tea-type-card p {
-            color: #666;
-        }
-
-    .tea-item {
-        list-style: none;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #eee;
-        position: relative;
-    }
-
-        .tea-item:last-child {
-            border-bottom: none;
-        }
-
-        .tea-item strong {
-            color: #000;
-        }
-
-        .tea-item button {
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: grey;
-            border: none;
-            border-radius: 4px;
-            padding: 0.25rem 2rem;
-            cursor: pointer;
-        }
-
-            .tea-item button:hover {
-                color: black;
-                background: #eee;
-            }
-
-    .tea-description {
-        margin-top: 0.5rem;
-        padding: 0.5rem;
-        border-top: 1px solid #ddd;
-        transition: max-height 0.3s ease-out;
+    .custom-shadow {
+        box-shadow: 5px 4px 8px rgba(0, 0, 0, 1);
     }
 </style>
 
@@ -141,28 +83,21 @@ else
         return PromoCodeService.ApplyPromoCode(tea);
     }
 
-    private async  Task AddToShelf(Tea tea)
+    private async Task AddToShelf(Tea tea)
     {
         await PersonalShelfService.PostResource("api/PersonalShelf", new PersonalShelf
-        {
-            ProfileId = AuthService.Id,
-            TeaId = tea.Id,
-            Amount = tea.Size,
-            Rating = 0,
-            Note = "",
-            Tea = tea
-        });
-        
+            {
+                ProfileId = AuthService.Id,
+                TeaId = tea.Id,
+                Amount = tea.Size,
+                Rating = 0,
+                Note = "",
+                Tea = tea
+            });
     }
+
     private void ToggleDescription(int teaId)
     {
-        if (showDescriptionId == teaId)
-        {
-            showDescriptionId = null;
-        }
-        else
-        {
-            showDescriptionId = teaId;
-        }
+        showDescriptionId = showDescriptionId == teaId ? (int?)null : teaId;
     }
 }

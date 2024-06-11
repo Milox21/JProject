@@ -5,110 +5,143 @@
 
 @inject ApiConnectionService<TeaType> ApiService
 
-<h3>Tea Types</h3>
+<h3 class="mt-4 mb-3 text-center">Tea Types Management</h3>
 
 @if (TeaTypes == null)
 {
-    <p>Loading...</p>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
     <div class="container mt-4">
-        <h4>Add New Tea Type</h4>
-        <div class="form-group">
-            <label>Name:</label>
-            <input class="form-control" @bind="NewTeaType.Name" />
+        <button class="btn btn-primary mb-3" @onclick="OpenAddTeaTypeModal">
+            <i class="bi bi-plus-lg"></i> Add New Tea Type
+        </button>
+
+        <div class="row">
+            @foreach (var teaType in TeaTypes)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card mb-3 custom-shadow">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@teaType.Name</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => EditTeaType(teaType)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => DeleteTeaType(teaType.Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Description:</strong> @teaType.Description</p>
+                            <p><strong>Temperature:</strong> @teaType.Temp</p>
+                            <p><strong>Brewing Time:</strong> @teaType.BrewingTime minutes</p>
+                            <p><strong>Amount Per Cup:</strong> @teaType.AmountPerCup</p>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="form-group">
-            <label>Description:</label>
-            <input class="form-control" @bind="NewTeaType.Description" />
-        </div>
-        <div class="form-group">
-            <label>Temperature:</label>
-            <input type="number" class="form-control" @bind="NewTeaType.Temp" />
-        </div>
-        <div class="form-group">
-            <label>Brewing Time (in minutes):</label>
-            <input type="number" class="form-control" @bind="NewTeaType.BrewingTime" />
-        </div>
-        <div class="form-group">
-            <label>Amount Per Cup:</label>
-            <input class="form-control" @bind="NewTeaType.AmountPerCup" />
-        </div>
-        <button class="btn btn-success" style="margin: 8px" @onclick="AddTeaType">Add</button>
     </div>
 
-    <div class="container">
-        @foreach (var teaType in TeaTypes)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    @if (teaType.Id == SelectedTeaTypeId)
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <input type="text" class="form-control" @bind="teaType.Name" />
+    @if (IsAddTeaTypeModalOpen)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="addTeaTypeModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="addTeaTypeModalLabel">Add New Tea Type</h5>
+                        <button type="button" class="btn-close" @onclick="CloseAddTeaTypeModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input class="form-control" @bind="NewTeaType.Name" />
                         </div>
-                        <div class="form-group">
-                            <label>Description:</label>
-                            <input type="text" class="form-control" @bind="teaType.Description" />
+                        <div class="mb-3">
+                            <label class="form-label">Description:</label>
+                            <input class="form-control" @bind="NewTeaType.Description" />
                         </div>
-                        <div class="form-group">
-                            <label>Temperature:</label>
-                            <input type="number" class="form-control" @bind="teaType.Temp" />
+                        <div class="mb-3">
+                            <label class="form-label">Temperature:</label>
+                            <input type="number" class="form-control" @bind="NewTeaType.Temp" />
                         </div>
-                        <div class="form-group">
-                            <label>Brewing Time (in minutes):</label>
-                            <input type="number" class="form-control" @bind="teaType.BrewingTime" />
+                        <div class="mb-3">
+                            <label class="form-label">Brewing Time (minutes):</label>
+                            <input type="number" class="form-control" @bind="NewTeaType.BrewingTime" />
                         </div>
-                        <div class="form-group">
-                            <label>Amount Per Cup:</label>
-                            <input type="text" class="form-control" @bind="teaType.AmountPerCup" />
+                        <div class="mb-3">
+                            <label class="form-label">Amount Per Cup:</label>
+                            <input class="form-control" @bind="NewTeaType.AmountPerCup" />
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-success" @onclick="SaveTeaType">Save</button>
-                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <p>@teaType.Name</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Description:</label>
-                            <p>@teaType.Description</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Temperature:</label>
-                            <p>@teaType.Temp</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Brewing Time (in minutes):</label>
-                            <p>@teaType.BrewingTime</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Amount Per Cup:</label>
-                            <p>@teaType.AmountPerCup</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-primary" @onclick="() => EditTeaType(teaType)">Edit</button>
-                            <button class="btn btn-danger" @onclick="() => DeleteTeaType(teaType.Id)">Delete</button>
-                        </div>
-                    }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseAddTeaTypeModal">Close</button>
+                        <button type="button" class="btn btn-success" @onclick="AddTeaType">Add Tea Type</button>
+                    </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 
-    
+    @if (SelectedTeaTypeId != 0)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="editTeaTypeModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="editTeaTypeModalLabel">Edit Tea Type</h5>
+                        <button type="button" class="btn-close" @onclick="CancelEdit"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input type="text" class="form-control" @bind="TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId).Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description:</label>
+                            <input type="text" class="form-control" @bind="TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId).Description" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Temperature:</label>
+                            <input type="number" class="form-control" @bind="TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId).Temp" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Brewing Time (minutes):</label>
+                            <input type="number" class="form-control" @bind="TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId).BrewingTime" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Amount Per Cup:</label>
+                            <input type="text" class="form-control" @bind="TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId).AmountPerCup" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        <button type="button" class="btn btn-success" @onclick="SaveTeaType">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
+<style>
+    .custom-shadow {
+        box-shadow: 5px 4px 8px rgba(0, 0, 0, 1);
+    }
+</style>
+
 @code {
-    List<TeaType>? TeaTypes;
+    List<TeaType> TeaTypes;
     int SelectedTeaTypeId;
     TeaType NewTeaType = new TeaType();
+    bool IsAddTeaTypeModalOpen = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -121,16 +154,27 @@ else
         TeaTypes = await ApiService.GetResources("api/TeaType");
     }
 
+    private void OpenAddTeaTypeModal()
+    {
+        NewTeaType = new TeaType();
+        IsAddTeaTypeModalOpen = true;
+    }
+
+    private void CloseAddTeaTypeModal()
+    {
+        IsAddTeaTypeModalOpen = false;
+    }
+
     private async Task AddTeaType()
     {
         await ApiService.PostResource("api/TeaType", NewTeaType);
         await LoadTeaTypes();
-        NewTeaType = new TeaType();
+        CloseAddTeaTypeModal();
     }
 
-    private void EditTeaType(TeaType teaType)
+    private void EditTeaType(TeaType item)
     {
-        SelectedTeaTypeId = teaType.Id;
+        SelectedTeaTypeId = item.Id;
     }
 
     private async Task SaveTeaType()
@@ -144,9 +188,10 @@ else
         await LoadTeaTypes();
     }
 
-    private void CancelEdit()
+    private async void CancelEdit()
     {
         SelectedTeaTypeId = 0;
+        await LoadTeaTypes();
     }
 
     private async Task DeleteTeaType(int teaTypeId)

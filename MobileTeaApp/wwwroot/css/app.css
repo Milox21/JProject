@@ -74,6 +74,19 @@ h1:focus {
     margin-right: 8px; 
     margin-bottom: 25px;
 }
+
+body {
+    background-image: url('TeaBackgroundMobile.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+h3 {
+    text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+    color: white;
+}
+
 @supports (-webkit-touch-callout: none) {
     .status-bar-safe-area {
         display: flex;

@@ -13,7 +13,6 @@ namespace WebTeaApp.Services
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
         
-        //zmienna
         public ApiConnectionService(HttpClient httpClient)
         {
             _httpClient = httpClient;

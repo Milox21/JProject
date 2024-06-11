@@ -5,87 +5,124 @@
 
 @inject ApiConnectionService<Company> ApiService
 
-<h3>Companies</h3>
+<h3 class="mt-4 mb-3 text-center">Company Management</h3>
 
 @if (Companies == null)
 {
-    <p>Loading...</p>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
-
     <div class="container mt-4">
-        <h4>Add New Company</h4>
-        <div class="form-group">
-            <label>Name:</label>
-            <input class="form-control" @bind="NewCompany.Name" />
+        <button class="btn btn-primary mb-3" @onclick="OpenAddCompanyModal">
+            <i class="bi bi-plus-lg"></i> Add New Company
+        </button>
+
+        <div class="row">
+            @foreach (var company in Companies)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card mb-3 custom-shadow">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@company.Name</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => EditCompany(company)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => DeleteCompany(company.Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Email:</strong> @company.Email</p>
+                            <p><strong>Phone Number:</strong> @company.PhoneNumber</p>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="form-group">
-            <label>Email:</label>
-            <input type="email" class="form-control" @bind="NewCompany.Email" />
-        </div>
-        <div class="form-group">
-            <label>Phone Number:</label>
-            <input type="text" class="form-control" @bind="NewCompany.PhoneNumber" />
-        </div>
-        <button class="btn btn-success" style="margin: 8px;" @onclick="AddCompany">Add</button>
     </div>
 
-    <div class="container">
-        @foreach (var company in Companies)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    @if (company.Id == SelectedCompanyId)
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <input type="text" class="form-control" @bind="company.Name" />
+    @if (IsAddCompanyModalOpen)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="addCompanyModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="addCompanyModalLabel">Add New Company</h5>
+                        <button type="button" class="btn-close" @onclick="CloseAddCompanyModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input class="form-control" @bind="NewCompany.Name" />
                         </div>
-                        <div class="form-group">
-                            <label>Email:</label>
-                            <input type="email" class="form-control" @bind="company.Email" />
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" class="form-control" @bind="NewCompany.Email" />
                         </div>
-                        <div class="form-group">
-                            <label>Phone Number:</label>
-                            <input type="text" class="form-control" @bind="company.PhoneNumber" />
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number:</label>
+                            <input type="text" class="form-control" @bind="NewCompany.PhoneNumber" />
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-success" @onclick="SaveCompany">Save</button>
-                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <p>@company.Name</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Email:</label>
-                            <p>@company.Email</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number:</label>
-                            <p>@company.PhoneNumber</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-primary" @onclick="() => EditCompany(company)">Edit</button>
-                            <button class="btn btn-danger" @onclick="() => DeleteCompany(company.Id)">Delete</button>
-                        </div>
-                    }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseAddCompanyModal">Close</button>
+                        <button type="button" class="btn btn-success" @onclick="AddCompany">Add Company</button>
+                    </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
+
+    @if (SelectedCompanyId != 0)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="editCompanyModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="editCompanyModalLabel">Edit Company</h5>
+                        <button type="button" class="btn-close" @onclick="CancelEdit"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input type="text" class="form-control" @bind="Companies.FirstOrDefault(c => c.Id == SelectedCompanyId).Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email:</label>
+                            <input type="email" class="form-control" @bind="Companies.FirstOrDefault(c => c.Id == SelectedCompanyId).Email" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number:</label>
+                            <input type="text" class="form-control" @bind="Companies.FirstOrDefault(c => c.Id == SelectedCompanyId).PhoneNumber" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        <button type="button" class="btn btn-success" @onclick="SaveCompany">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 
-
-
+<style>
+    .custom-shadow {
+        box-shadow: 5px 4px 8px rgba(0, 0, 0, 1);
+    }
+</style>
 @code {
     List<Company> Companies;
     int SelectedCompanyId;
     Company NewCompany = new Company();
+    bool IsAddCompanyModalOpen = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -98,11 +135,22 @@ else
         Companies = await ApiService.GetResources("api/Company");
     }
 
+    private void OpenAddCompanyModal()
+    {
+        NewCompany = new Company(); 
+        IsAddCompanyModalOpen = true;
+    }
+
+    private void CloseAddCompanyModal()
+    {
+        IsAddCompanyModalOpen = false;
+    }
+
     private async Task AddCompany()
     {
         await ApiService.PostResource("api/Company", NewCompany);
         await LoadCompanies();
-        NewCompany = new Company();
+        CloseAddCompanyModal();
     }
 
     private void EditCompany(Company item)

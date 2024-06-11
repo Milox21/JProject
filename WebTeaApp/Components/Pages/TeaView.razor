@@ -7,135 +7,168 @@
 @inject ApiConnectionService<TeaType> TeaTypeService
 @inject ApiConnectionService<Company> CompanyService
 
-<h3>Tea List</h3>
+<h3 class="mt-4 mb-3 text-center">Tea List Management</h3>
 
 @if (teas == null || teaTypes == null || companies == null)
 {
-    <p><em>Loading...</em></p>
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
     <div class="container mt-4">
-        <h4>Add New Tea</h4>
-        <div class="form-group">
-            <label>Name:</label>
-            <input class="form-control" @bind="newTea.Name" />
+        <button class="btn btn-primary mb-3" @onclick="OpenAddTeaModal">
+            <i class="bi bi-plus-lg "></i> Add New Tea
+        </button>
+
+        <div class="row">
+            @foreach (var tea in teas)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card mb-3 custom-shadow">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@tea.Name</h5>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => EditTea(tea)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-outline-light btn-sm" @onclick="() => DeleteTea(tea.Id)" data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Type:</strong> @(tea.TeaType?.Name ?? "Unknown")</p>
+                            <p><strong>Company:</strong> @(tea.Company?.Name ?? "Unknown")</p>
+                            <p><strong>Country:</strong> @tea.CountryOrigin</p>
+                            <p><strong>Price:</strong> @tea.Price $</p>
+                            <p><strong>Package Size:</strong> @tea.Size g</p>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="form-group">
-            <label>Type:</label>
-            <select class="form-control" @bind="newTea.TeaTypeId">
-                @foreach (var teaType in teaTypes)
-                {
-                    <option value="@teaType.Id">@teaType.Name</option>
-                }
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Company:</label>
-            <select class="form-control" @bind="newTea.CompanyId">
-                @foreach (var company in companies)
-                {
-                    <option value="@company.Id">@company.Name</option>
-                }
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Country:</label>
-            <input class="form-control" @bind="newTea.CountryOrigin" />
-        </div>
-        <div class="form-group">
-            <label>Price:</label>
-            <input type="number" class="form-control" @bind="newTea.Price" />
-        </div>
-        <div class="form-group">
-            <label>Size:</label>
-            <input type="number" class="form-control" @bind="newTea.Size" />
-        </div>
-        <button class="btn btn-success" style="margin: 8px;" @onclick="AddTea">Add</button>
     </div>
 
-    <div class="container">
-        @foreach (var tea in teas)
-        {
-            <div class="card mb-3">
-                <div class="card-body">
-                    @if (tea.Id == selectedTeaId)
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <input type="text" class="form-control" @bind="tea.Name" />
+    @if (IsAddTeaModalOpen)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="addTeaModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="addTeaModalLabel">Add New Tea</h5>
+                        <button type="button" class="btn-close" @onclick="CloseAddTeaModal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input class="form-control" @bind="newTea.Name" />
                         </div>
-                        <div class="form-group">
-                            <label>Type:</label>
-                            <select class="form-control" @bind="tea.TeaTypeId">
+                        <div class="mb-3">
+                            <label class="form-label">Type:</label>
+                            <select class="form-control" @bind="newTea.TeaTypeId">
+                                <option value="">Select Tea Type</option>
                                 @foreach (var teaType in teaTypes)
                                 {
                                     <option value="@teaType.Id">@teaType.Name</option>
                                 }
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Company:</label>
-                            <select class="form-control" @bind="tea.CompanyId">
+                        <div class="mb-3">
+                            <label class="form-label">Company:</label>
+                            <select class="form-control" @bind="newTea.CompanyId">
+                                <option value="">Select Company</option>
                                 @foreach (var company in companies)
                                 {
                                     <option value="@company.Id">@company.Name</option>
                                 }
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>Country:</label>
-                            <input type="text" class="form-control" @bind="tea.CountryOrigin" />
+                        <div class="mb-3">
+                            <label class="form-label">Country:</label>
+                            <input class="form-control" @bind="newTea.CountryOrigin" />
                         </div>
-                        <div class="form-group">
-                            <label>Price:</label>
-                            <input type="number" class="form-control" @bind="tea.Price" />
+                        <div class="mb-3">
+                            <label class="form-label">Price:</label>
+                            <input type="number" class="form-control" @bind="newTea.Price" />
                         </div>
-                        <div class="form-group">
-                            <label>Size:</label>
-                            <input type="number" class="form-control" @bind="tea.Size" />
+                        <div class="mb-3">
+                            <label class="form-label">Size:</label>
+                            <input type="number" class="form-control" @bind="newTea.Size" />
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-success" @onclick="SaveTea">Save</button>
-                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                        </div>
-                    }
-                    else
-                    {
-                        <div class="form-group">
-                            <label>Name:</label>
-                            <p>@tea.Name</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Type:</label>
-                            <p>@(tea.TeaType?.Name ?? "Unknown")</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Company:</label>
-                            <p>@(tea.Company?.Name ?? "Unknown")</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Country:</label>
-                            <p>@tea.CountryOrigin</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Price:</label>
-                            <p>@tea.Price $</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Package Size:</label>
-                            <p>@tea.Size g</p>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-primary" @onclick="() => EditTea(tea)">Edit</button>
-                            <button class="btn btn-danger" @onclick="() => DeleteTea(tea.Id)">Delete</button>
-                        </div>
-                    }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseAddTeaModal">Close</button>
+                        <button type="button" class="btn btn-success" @onclick="AddTea">Add Tea</button>
+                    </div>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
+
+    @if (selectedTeaId != 0)
+    {
+        <div class="modal fade show d-block" tabindex="-1" aria-labelledby="editTeaModalLabel" aria-hidden="true" style="background: rgba(0,0,0,.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="editTeaModalLabel">Edit Tea</h5>
+                        <button type="button" class="btn-close" @onclick="CancelEdit"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Name:</label>
+                            <input type="text" class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).Name" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Type:</label>
+                            <select class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).TeaTypeId">
+                                @foreach (var teaType in teaTypes)
+                                {
+                                    <option value="@teaType.Id" selected="@((teaType.Id == teas.FirstOrDefault(t => t.Id == selectedTeaId).TeaTypeId) ? "selected" : null)">@teaType.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Company:</label>
+                            <select class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).CompanyId">
+                                @foreach (var company in companies)
+                                {
+                                    <option value="@company.Id" selected="@((company.Id == teas.FirstOrDefault(t => t.Id == selectedTeaId).CompanyId) ? "selected" : null)">@company.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Country:</label>
+                            <input class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).CountryOrigin" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price:</label>
+                            <input type="number" class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).Price" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Size:</label>
+                            <input type="number" class="form-control" @bind="teas.FirstOrDefault(t => t.Id == selectedTeaId).Size" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        <button type="button" class="btn btn-success" @onclick="SaveTea">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
+<style>
+    .custom-shadow {
+        box-shadow: 5px 4px 8px rgba(0, 0, 0, 1);
+    }
+</style>
+
 
 @code {
     private List<Tea>? teas;
@@ -143,6 +176,7 @@ else
     private List<Company>? companies;
     private int selectedTeaId;
     private Tea newTea = new Tea();
+    private bool IsAddTeaModalOpen = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -167,13 +201,24 @@ else
         companies = await CompanyService.GetResources("api/Company");
     }
 
+    private void OpenAddTeaModal()
+    {
+        newTea = new Tea();
+        IsAddTeaModalOpen = true;
+    }
+
+    private void CloseAddTeaModal()
+    {
+        IsAddTeaModalOpen = false;
+    }
+
     private async Task AddTea()
     {
         newTea.Company = companies.FirstOrDefault(c => c.Id == newTea.CompanyId);
         newTea.TeaType = teaTypes.FirstOrDefault(t => t.Id == newTea.TeaTypeId);
         await TeaService.PostResource("api/Tea", newTea);
         await LoadTeas();
-        newTea = new Tea(); 
+        CloseAddTeaModal();
     }
 
     private void EditTea(Tea tea)
@@ -187,14 +232,15 @@ else
         if (teaToSave != null)
         {
             await TeaService.PutResource($"api/Tea/{teaToSave.Id}", teaToSave);
-            selectedTeaId = 0; 
+            selectedTeaId = 0;
         }
         await LoadTeas();
     }
 
-    private void CancelEdit()
+    private async void CancelEdit()
     {
         selectedTeaId = 0;
+        await LoadTeas();
     }
 
     private async Task DeleteTea(int teaId)
