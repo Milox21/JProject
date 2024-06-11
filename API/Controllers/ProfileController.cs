@@ -1,9 +1,6 @@
 ﻿using API.Models;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace API.Controllers
 {

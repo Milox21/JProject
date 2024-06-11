@@ -1,0 +1,205 @@
+﻿@page "/tea"
+
+@using WebTeaApp.Models
+@using WebTeaApp.Services
+
+@inject ApiConnectionService<Tea> TeaService
+@inject ApiConnectionService<TeaType> TeaTypeService
+@inject ApiConnectionService<Company> CompanyService
+
+<h3>Tea List</h3>
+
+@if (teas == null || teaTypes == null || companies == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="container mt-4">
+        <h4>Add New Tea</h4>
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" @bind="newTea.Name" />
+        </div>
+        <div class="form-group">
+            <label>Type:</label>
+            <select class="form-control" @bind="newTea.TeaTypeId">
+                @foreach (var teaType in teaTypes)
+                {
+                    <option value="@teaType.Id">@teaType.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Company:</label>
+            <select class="form-control" @bind="newTea.CompanyId">
+                @foreach (var company in companies)
+                {
+                    <option value="@company.Id">@company.Name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Country:</label>
+            <input class="form-control" @bind="newTea.CountryOrigin" />
+        </div>
+        <div class="form-group">
+            <label>Price:</label>
+            <input type="number" class="form-control" @bind="newTea.Price" />
+        </div>
+        <div class="form-group">
+            <label>Size:</label>
+            <input type="number" class="form-control" @bind="newTea.Size" />
+        </div>
+        <button class="btn btn-success" style="margin: 8px;" @onclick="AddTea">Add</button>
+    </div>
+
+    <div class="container">
+        @foreach (var tea in teas)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    @if (tea.Id == selectedTeaId)
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" class="form-control" @bind="tea.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Type:</label>
+                            <select class="form-control" @bind="tea.TeaTypeId">
+                                @foreach (var teaType in teaTypes)
+                                {
+                                    <option value="@teaType.Id">@teaType.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Company:</label>
+                            <select class="form-control" @bind="tea.CompanyId">
+                                @foreach (var company in companies)
+                                {
+                                    <option value="@company.Id">@company.Name</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Country:</label>
+                            <input type="text" class="form-control" @bind="tea.CountryOrigin" />
+                        </div>
+                        <div class="form-group">
+                            <label>Price:</label>
+                            <input type="number" class="form-control" @bind="tea.Price" />
+                        </div>
+                        <div class="form-group">
+                            <label>Size:</label>
+                            <input type="number" class="form-control" @bind="tea.Size" />
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-success" @onclick="SaveTea">Save</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <p>@tea.Name</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Type:</label>
+                            <p>@(tea.TeaType?.Name ?? "Unknown")</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Company:</label>
+                            <p>@(tea.Company?.Name ?? "Unknown")</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Country:</label>
+                            <p>@tea.CountryOrigin</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Price:</label>
+                            <p>@tea.Price $</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Package Size:</label>
+                            <p>@tea.Size g</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary" @onclick="() => EditTea(tea)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteTea(tea.Id)">Delete</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Tea>? teas;
+    private List<TeaType>? teaTypes;
+    private List<Company>? companies;
+    private int selectedTeaId;
+    private Tea newTea = new Tea();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeas();
+        await LoadTeaTypes();
+        await LoadCompanies();
+        selectedTeaId = 0;
+    }
+
+    private async Task LoadTeas()
+    {
+        teas = await TeaService.GetResources("api/Tea");
+    }
+
+    private async Task LoadTeaTypes()
+    {
+        teaTypes = await TeaTypeService.GetResources("api/TeaType");
+    }
+
+    private async Task LoadCompanies()
+    {
+        companies = await CompanyService.GetResources("api/Company");
+    }
+
+    private async Task AddTea()
+    {
+        newTea.Company = companies.FirstOrDefault(c => c.Id == newTea.CompanyId);
+        newTea.TeaType = teaTypes.FirstOrDefault(t => t.Id == newTea.TeaTypeId);
+        await TeaService.PostResource("api/Tea", newTea);
+        await LoadTeas();
+        newTea = new Tea(); 
+    }
+
+    private void EditTea(Tea tea)
+    {
+        selectedTeaId = tea.Id;
+    }
+
+    private async Task SaveTea()
+    {
+        var teaToSave = teas.FirstOrDefault(t => t.Id == selectedTeaId);
+        if (teaToSave != null)
+        {
+            await TeaService.PutResource($"api/Tea/{teaToSave.Id}", teaToSave);
+            selectedTeaId = 0; 
+        }
+        await LoadTeas();
+    }
+
+    private void CancelEdit()
+    {
+        selectedTeaId = 0;
+    }
+
+    private async Task DeleteTea(int teaId)
+    {
+        await TeaService.DeleteResource($"api/Tea/{teaId}");
+        await LoadTeas();
+    }
+}

@@ -169,12 +169,16 @@ else
 
     private async Task AddTea()
     {
-        newTea.Company = companies.FirstOrDefault(c => c.Id == newTea.CompanyId);
-        newTea.TeaType = teaTypes.FirstOrDefault(t => t.Id == newTea.TeaTypeId);
-        await TeaService.PostResource("api/Tea", newTea);
-        await LoadTeas();
-        newTea = new Tea(); 
+        if (newTea != null && companies != null && teaTypes != null)
+        {
+            newTea.Company = companies.FirstOrDefault(c => c.Id == newTea.CompanyId);
+            newTea.TeaType = teaTypes.FirstOrDefault(t => t.Id == newTea.TeaTypeId);
+            await TeaService.PostResource("api/Tea", newTea);
+            await LoadTeas();
+            newTea = new Tea();
+        }
     }
+
 
     private void EditTea(Tea tea)
     {

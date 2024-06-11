@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
 
-@using MobileTeaApp.Services
+
 @inject AuthService AuthService
 
 @if(AuthService.IsLoggedIn)
@@ -25,6 +25,7 @@
 else
 {
 @using MobileTeaApp.Models
+@using MobileTeaApp.Services
 
 @inject ApiConnectionService<Profile> ApiService
 

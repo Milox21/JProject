@@ -1,0 +1,157 @@
+﻿@page "/teatypes"
+
+@using WebTeaApp.Models
+@using WebTeaApp.Services
+
+@inject ApiConnectionService<TeaType> ApiService
+
+<h3>Tea Types</h3>
+
+@if (TeaTypes == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="container mt-4">
+        <h4>Add New Tea Type</h4>
+        <div class="form-group">
+            <label>Name:</label>
+            <input class="form-control" @bind="NewTeaType.Name" />
+        </div>
+        <div class="form-group">
+            <label>Description:</label>
+            <input class="form-control" @bind="NewTeaType.Description" />
+        </div>
+        <div class="form-group">
+            <label>Temperature:</label>
+            <input type="number" class="form-control" @bind="NewTeaType.Temp" />
+        </div>
+        <div class="form-group">
+            <label>Brewing Time (in minutes):</label>
+            <input type="number" class="form-control" @bind="NewTeaType.BrewingTime" />
+        </div>
+        <div class="form-group">
+            <label>Amount Per Cup:</label>
+            <input class="form-control" @bind="NewTeaType.AmountPerCup" />
+        </div>
+        <button class="btn btn-success" style="margin: 8px" @onclick="AddTeaType">Add</button>
+    </div>
+
+    <div class="container">
+        @foreach (var teaType in TeaTypes)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    @if (teaType.Id == SelectedTeaTypeId)
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" class="form-control" @bind="teaType.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <input type="text" class="form-control" @bind="teaType.Description" />
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature:</label>
+                            <input type="number" class="form-control" @bind="teaType.Temp" />
+                        </div>
+                        <div class="form-group">
+                            <label>Brewing Time (in minutes):</label>
+                            <input type="number" class="form-control" @bind="teaType.BrewingTime" />
+                        </div>
+                        <div class="form-group">
+                            <label>Amount Per Cup:</label>
+                            <input type="text" class="form-control" @bind="teaType.AmountPerCup" />
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-success" @onclick="SaveTeaType">Save</button>
+                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <p>@teaType.Name</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <p>@teaType.Description</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Temperature:</label>
+                            <p>@teaType.Temp</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Brewing Time (in minutes):</label>
+                            <p>@teaType.BrewingTime</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Amount Per Cup:</label>
+                            <p>@teaType.AmountPerCup</p>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-primary" @onclick="() => EditTeaType(teaType)">Edit</button>
+                            <button class="btn btn-danger" @onclick="() => DeleteTeaType(teaType.Id)">Delete</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    
+}
+
+@code {
+    List<TeaType> TeaTypes;
+    int SelectedTeaTypeId;
+    TeaType NewTeaType = new TeaType();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTeaTypes();
+        SelectedTeaTypeId = 0;
+    }
+
+    private async Task LoadTeaTypes()
+    {
+        TeaTypes = await ApiService.GetResources("api/TeaType");
+    }
+
+    private async Task AddTeaType()
+    {
+        await ApiService.PostResource("api/TeaType", NewTeaType);
+        await LoadTeaTypes();
+        NewTeaType = new TeaType();
+    }
+
+    private void EditTeaType(TeaType teaType)
+    {
+        SelectedTeaTypeId = teaType.Id;
+    }
+
+    private async Task SaveTeaType()
+    {
+        var teaTypeToSave = TeaTypes.FirstOrDefault(t => t.Id == SelectedTeaTypeId);
+        if (teaTypeToSave != null)
+        {
+            await ApiService.PutResource($"api/TeaType/{teaTypeToSave.Id}", teaTypeToSave);
+            SelectedTeaTypeId = 0;
+        }
+        await LoadTeaTypes();
+    }
+
+    private void CancelEdit()
+    {
+        SelectedTeaTypeId = 0;
+    }
+
+    private async Task DeleteTeaType(int teaTypeId)
+    {
+        await ApiService.DeleteResource($"api/TeaType/{teaTypeId}");
+        await LoadTeaTypes();
+    }
+}

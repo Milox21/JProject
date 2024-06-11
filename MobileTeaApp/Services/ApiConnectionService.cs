@@ -1,10 +1,7 @@
 ﻿using MobileTeaApp.Models;
-using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace MobileTeaApp.Services
 {
@@ -13,7 +10,6 @@ namespace MobileTeaApp.Services
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
         
-        //zmienna
         public ApiConnectionService(HttpClient httpClient)
         {
             _httpClient = httpClient;

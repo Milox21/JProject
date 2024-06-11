@@ -1,5 +1,4 @@
-﻿using API.Models;
-using API.Models.Contexts;
+﻿using API.Models.Contexts;
 using API.Models.ModelInterfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

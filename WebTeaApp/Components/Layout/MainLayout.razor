@@ -1,0 +1,159 @@
+﻿@inherits LayoutComponentBase
+
+@using WebTeaApp.Services
+@inject AuthService AuthService
+
+@rendermode InteractiveServer
+
+@if (AuthService.IsLoggedIn)
+{ 
+    <div class="page">
+        <div class="sidebar">
+            <NavMenu />
+        </div>
+
+        <main>
+            <div class="top-row px-4">
+                <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            </div>
+
+            <article class="content px-4">
+                @Body
+            </article>
+        </main>
+    </div>
+
+}
+else
+{
+@using WebTeaApp.Models
+
+@inject ApiConnectionService<Profile> ApiService
+
+    <div class="login-container">
+        <div class="form-container">
+            <h2>Login</h2>
+            <form @onsubmit="Login">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="text" id="email" @bind="email" placeholder="Enter your email address">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" @bind="password" placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+
+        <div class="form-container">
+            <h2>Register</h2>
+            <form @onsubmit="Register" class="register-form">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" @bind="username" placeholder="Enter your username">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-email">Email:</label>
+                    <input type="text" id="register-email" @bind="email" placeholder="Enter your email address">
+                </div>
+
+                <div class="form-group">
+                    <label for="register-password">Password:</label>
+                    <input type="password" id="register-password" @bind="password" placeholder="Enter your password">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <style>
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #555;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+        .btn-primary {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+            .btn-primary:hover {
+                background-color: #0056b3;
+            }
+    </style>
+
+
+    @code {
+    private string email = "";
+    private string password = "";
+    private string username = "";
+
+    private bool loggedIn = false;
+
+    private async Task Login()
+    {
+        loggedIn = await AuthService.Login(email, password);
+    }
+
+    private async Task Register()
+    {
+        Profile profile = new Profile
+            {
+                Email = email,
+                Password = password,
+                Username = username
+            };
+
+        loggedIn = await AuthService.Register(profile);
+    }
+}
+}

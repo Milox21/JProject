@@ -24,7 +24,7 @@ else
         {
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0">@story.Tea.Name</h4>
+                    <h4 class="mb-0">@(story.Tea == null ? "Unknown" : story.Tea.Name)</h4>
                     <small class="text-muted">@story.CreatedAt</small>
                 </div>
                 <div class="card-body">
@@ -56,7 +56,6 @@ else
 @code {
     private List<PersonalBrewingHistory>? History;
     private int? showDescriptionId;
-    private int selectedSortOption = 1; 
     protected override async Task OnInitializedAsync()
     {
         History = await PersonalBrewingHistoryService.GetResources($"api/PersonalBrewingHistory/PersonalHistory/{AuthService.Id}");
@@ -64,25 +63,27 @@ else
 
     private void SortHistory(int sortPick)
     {
-        if(sortPick == 1)
+        if(History != null)
         {
-            History = History
-            .OrderByDescending(x => x.CreatedAt)
-            .ToList();
+            if (sortPick == 1)
+            {
+                History = History
+                .OrderByDescending(x => x.CreatedAt)
+                .ToList();
+            }
+            else if (sortPick == 2)
+            {
+                History = History
+                .OrderBy(x => x.Tea?.Name)
+                .ToList();
+            }
+            else if (sortPick == 3)
+            {
+                History = History
+                .OrderByDescending(x => x.Amount)
+                .ToList();
+            }
         }
-        else if(sortPick == 2)
-        {
-            History = History
-            .OrderBy(x => x.Tea.Name)
-            .ToList();
-        }
-        else if(sortPick == 3)
-        {
-            History = History
-            .OrderByDescending(x => x.Amount)
-            .ToList();
-        }
-
     }
     private void ToggleDescription(int storyId)
     {
